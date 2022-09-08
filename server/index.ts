@@ -12,6 +12,13 @@ const { httpServer, io } = makeServer(app);
 
 io.on("connection", (socket: any) => {
   console.log("Connected: ", socket.id);
+
+  socket.on("create room", (data: { name: string }) => {
+    const { name } = data;
+    console.log(name);
+
+    socket.emit("create room", { name });
+  });
 });
 
 const PORT = process.env.PORT ?? 5050;
