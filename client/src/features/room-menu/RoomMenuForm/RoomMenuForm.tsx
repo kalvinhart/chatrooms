@@ -5,16 +5,17 @@ import { Button } from "../../../common/styles/buttonStyles";
 import { Form, FormGroup, Input, Label } from "../../../common/styles/formStyles";
 
 type Props = {
-  handleCreateRoom: (roomName: string) => void;
+  handleCreateRoom: (data: { roomName: string; desc: string }) => void;
 };
 const RoomMenuForm = ({ handleCreateRoom }: Props) => {
-  const [formName, setFormName] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [desc, setDesc] = useState("");
 
   const createRoom = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!formName || formName === "") return;
+    if (!roomName || roomName === "") return;
 
-    handleCreateRoom(formName);
+    handleCreateRoom({ roomName, desc });
   };
 
   return (
@@ -26,9 +27,15 @@ const RoomMenuForm = ({ handleCreateRoom }: Props) => {
           <Input
             type="text"
             id="roomName"
-            onChange={(e) => setFormName(e.target.value)}
+            onChange={(e) => setRoomName(e.target.value)}
           />
         </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="desc">Description (optional):</Label>
+          <Input type="text" id="desc" onChange={(e) => setDesc(e.target.value)} />
+        </FormGroup>
+
         <Button onClick={createRoom}>Create</Button>
       </Form>
     </RoomMenuFormWrapper>
