@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 import { RoomMenuForm } from "../RoomMenuForm";
 
@@ -7,16 +8,22 @@ import { Modal } from "../../../common/components/Modal";
 import { useSocket } from "../../../common/hooks/useSocket";
 import { Button } from "../../../common/styles/buttonStyles";
 
+import { RoomData } from "../types/RoomData";
+
 const RoomMenu = () => {
   const socket = useSocket();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [rooms, setRooms] = useState<string[]>([]);
+  const [rooms, setRooms] = useState<RoomData[]>([]);
 
   useEffect(() => {
-    socket?.on("create room", (data: { name: string }) => {
+    socket?.on("room:create", (data: RoomData) => {
       console.log("creating room...");
-      setRooms((prev) => [...prev, data.name]);
+      setRooms((prev) => [...prev, { roomName: data.roomName, roomId: data.roomId }]);
     });
+
+    return () => {
+      socket?.off("room:create");
+    };
   }, [socket]);
 
   const handleCreateClick = () => {
@@ -26,7 +33,8 @@ const RoomMenu = () => {
   const handleClose = () => setShowCreateModal(false);
 
   const handleCreateRoom = (roomName: string) => {
-    socket?.emit("create room", { name: roomName });
+    socket?.emit("room:create", { roomName, roomId: uuid() });
+    handleClose();
   };
 
   return (
@@ -41,8 +49,8 @@ const RoomMenu = () => {
 
       <h2>Available Rooms:</h2>
       <ul>
-        {rooms.map((room) => (
-          <li key={room}>{room}</li>
+        {rooms.map(({ roomId, roomName }) => (
+          <li key={roomId}>{roomName}</li>
         ))}
       </ul>
     </RoomMenuWrapper>

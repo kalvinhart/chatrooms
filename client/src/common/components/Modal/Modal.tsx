@@ -1,7 +1,7 @@
 import { ReactNode, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useClickOutside } from "../../hooks/useClickOutside";
-import { ModalOverlay, ModalWrapper } from "./Modal.styles";
+import { ModalContainer, ModalOverlay, ModalWrapper } from "./Modal.styles";
 
 type Props = {
   children: ReactNode;
@@ -9,14 +9,13 @@ type Props = {
 };
 const Modal = ({ children, handleClose }: Props) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  //   useClickOutside(modalRef, handleClose);
+  // useClickOutside(modalRef, handleClose);
 
   return createPortal(
-    <>
-      <ModalOverlay>
-        <ModalWrapper ref={modalRef}>{children}</ModalWrapper>
-      </ModalOverlay>
-    </>,
+    <ModalContainer>
+      <ModalOverlay />
+      <ModalWrapper ref={modalRef}>{children}</ModalWrapper>
+    </ModalContainer>,
     document.getElementById("modal")!
   );
 };
