@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { messageHandler } from "./messageHandler";
 import { roomHandler } from "./roomHandler";
 
 export const socketHandler = (io: Server) => {
@@ -6,5 +7,6 @@ export const socketHandler = (io: Server) => {
     console.log("Connected: ", socket.id);
 
     roomHandler(io, socket);
+    messageHandler(io, socket);
   });
 };

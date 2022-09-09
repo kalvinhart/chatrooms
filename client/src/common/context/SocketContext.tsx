@@ -1,23 +1,18 @@
-import { createContext, ReactNode, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { createContext, ReactNode, useEffect, useMemo } from "react";
+import SocketService from "../services/socketService";
 
-export const SocketContext = createContext<Socket | null>(null);
+export const SocketContext = createContext<SocketService>(new SocketService());
 
 type Props = {
   children: ReactNode;
 };
 const SocketProvider = ({ children }: Props) => {
-  const socket = io("localhost:5000", {
-    autoConnect: false,
-  });
+  const socket = useMemo(() => new SocketService(), []);
 
   useEffect(() => {
     if (socket.connected) return;
 
     socket.connect();
-    socket.on("connect", () => {
-      console.log("connected: ", socket.id);
-    });
 
     return () => {
       if (socket.connected) socket.disconnect();

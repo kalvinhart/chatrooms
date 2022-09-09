@@ -10,13 +10,14 @@ export const roomHandler = (io: Server, socket: any) => {
 
   const createRoom = (data: RoomData) => {
     rooms.push(data);
-    socket.emit("room:created", { rooms });
+    io.emit("room:created", { rooms });
     joinRoom(data);
   };
 
   const joinRoom = ({ roomId, roomName }: RoomData) => {
     socket.join(roomId);
     console.log(`user ${socket.id} joined ${roomName}`);
+    console.log("room info: ", socket.rooms);
     socket.emit("room:joined", { roomId, roomName });
   };
 

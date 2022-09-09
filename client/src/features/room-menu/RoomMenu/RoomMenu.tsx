@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { v4 as uuid } from "uuid";
 
 import { RoomMenuForm } from "../RoomMenuForm";
 
@@ -9,9 +8,10 @@ import { useSocket } from "../../../common/hooks/useSocket";
 import { Button } from "../../../common/styles/buttonStyles";
 
 import { RoomData } from "../types/RoomData";
+import { CreateRoomParams } from "../../../common/context/types";
 
 const RoomMenu = () => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [rooms, setRooms] = useState<RoomData[]>([]);
 
@@ -19,12 +19,12 @@ const RoomMenu = () => {
     type RoomsResponse = {
       rooms: RoomData[];
     };
-    socket?.on("room:created", ({ rooms }: RoomsResponse) => {
+    socket.on("room:created", ({ rooms }: RoomsResponse) => {
       setRooms(rooms);
     });
 
     return () => {
-      socket?.off("room:created");
+      socket.off("room:created");
     };
   }, [socket]);
 
@@ -34,19 +34,13 @@ const RoomMenu = () => {
 
   const handleClose = () => setShowCreateModal(false);
 
-  type CreateRoomParams = {
-    roomName: string;
-    desc: string;
-  };
-  const handleCreateRoom = ({ roomName, desc }: CreateRoomParams) => {
-    console.log(`Creating room "${roomName}"...`);
-    socket?.emit("room:create", { roomName, roomId: uuid(), desc });
+  const handleCreateRoom = (data: CreateRoomParams) => {
+    socket.createRoom(data);
     handleClose();
   };
 
   const handleJoinRoom = (data: RoomData) => {
-    console.log(`Joining room: "${data.roomName}"...`);
-    socket?.emit("room:join", data);
+    socket.joinRoom(data);
   };
 
   return (
