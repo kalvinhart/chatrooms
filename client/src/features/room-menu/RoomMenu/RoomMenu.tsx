@@ -16,13 +16,15 @@ const RoomMenu = () => {
   const [rooms, setRooms] = useState<RoomData[]>([]);
 
   useEffect(() => {
-    socket?.on("room:create", (data: RoomData) => {
-      console.log("creating room...");
-      setRooms((prev) => [...prev, { roomName: data.roomName, roomId: data.roomId }]);
+    type RoomsResponse = {
+      rooms: RoomData[];
+    };
+    socket?.on("room:created", ({ rooms }: RoomsResponse) => {
+      setRooms(rooms);
     });
 
     return () => {
-      socket?.off("room:create");
+      socket?.off("room:created");
     };
   }, [socket]);
 
@@ -32,9 +34,19 @@ const RoomMenu = () => {
 
   const handleClose = () => setShowCreateModal(false);
 
-  const handleCreateRoom = (roomName: string) => {
-    socket?.emit("room:create", { roomName, roomId: uuid() });
+  type CreateRoomParams = {
+    roomName: string;
+    desc: string;
+  };
+  const handleCreateRoom = ({ roomName, desc }: CreateRoomParams) => {
+    console.log(`Creating room "${roomName}"...`);
+    socket?.emit("room:create", { roomName, roomId: uuid(), desc });
     handleClose();
+  };
+
+  const handleJoinRoom = (data: RoomData) => {
+    console.log(`Joining room: "${data.roomName}"...`);
+    socket?.emit("room:join", data);
   };
 
   return (
@@ -50,7 +62,11 @@ const RoomMenu = () => {
       <h2>Available Rooms:</h2>
       <ul>
         {rooms.map(({ roomId, roomName }) => (
-          <li key={roomId}>{roomName}</li>
+          <li key={roomId}>
+            <Button onClick={() => handleJoinRoom({ roomId, roomName })}>
+              {roomName}
+            </Button>
+          </li>
         ))}
       </ul>
     </RoomMenuWrapper>
